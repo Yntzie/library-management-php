@@ -87,6 +87,44 @@ function runMigrations(PgConnection $conn): void
       CREATE INDEX IF NOT EXISTS idx_return_book_borrow_id ON return_book(borrow_id)
       SQL,
     ],
+    '202609160002_seed_default_admin' => [
+      <<<SQL
+      INSERT INTO librarian (
+        librarian_id,
+        librarian_name,
+        librarian_username,
+        librarian_password,
+        librarian_role,
+        librarian_phone,
+        librarian_address,
+        librarian_status
+      )
+      SELECT
+        1,
+        'Administrator',
+        CASE
+          WHEN EXISTS (SELECT 1 FROM librarian WHERE librarian_username = 'admin')
+          THEN 'admin_1'
+          ELSE 'admin'
+        END,
+        '\$2y\$12\$rP3go8Fool.uSflcsSep9uAfXnS6M7d27XtZopgVmJgEund3FYday',
+        'ADMIN',
+        '081234567890',
+        'GMS Library',
+        'ACTIVE'
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM librarian
+        WHERE librarian_id = 1
+      )
+      SQL,
+      <<<SQL
+      SELECT setval(
+        pg_get_serial_sequence('librarian', 'librarian_id'),
+        GREATEST((SELECT COALESCE(MAX(librarian_id), 1) FROM librarian), 1)
+      )
+      SQL,
+    ],
   ];
 
   $check = $pdo->prepare("SELECT 1 FROM schema_migrations WHERE version = ?");

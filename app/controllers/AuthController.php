@@ -114,7 +114,7 @@ class AuthController
 
     public function register()
     {
-        require 'register.php';
+        require BASE_PATH . '/public/register.php';
     }
 
     // ====================================================
@@ -125,7 +125,7 @@ class AuthController
         if (session_status() === PHP_SESSION_NONE) session_start();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            require 'register.php'; 
+            require BASE_PATH . '/public/register.php'; 
             return;
         }
 

@@ -13,8 +13,8 @@ if (!isset($_SESSION['role'])) {
 $bookModel = new Book($conn);
 
 // Pencarian
-$keyword = $_GET['q'] ?? null;
-$books   = $keyword ? $bookModel->search($keyword) : [];
+$keyword = trim((string) ($_GET['q'] ?? ''));
+$books   = $keyword !== '' ? $bookModel->search($keyword) : [];
 
 $userModel = new User($conn);
 $user = $userModel->getById($_SESSION['user_id']);
@@ -87,7 +87,7 @@ $user = $userModel->getById($_SESSION['user_id']);
     <!-- FORM SEARCH (GET) -->
     <div class="form-group">
         <form method="GET" action="booking.php" class="search-box">
-            <input type="text" name="q" placeholder="Cari Buku..." value="<?= htmlspecialchars($keyword) ?>">
+            <input type="text" name="q" placeholder="Cari Buku..." value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>">
             <button type="submit">Cari</button>
         </form>
     </div>
@@ -138,12 +138,12 @@ $user = $userModel->getById($_SESSION['user_id']);
                 <div class="book-wrapper">
                     <div class="book-card">
                         <div class="book-image">
-                            <img src="asset/<?= htmlspecialchars($b['cover']) ?>" width="80" height="120" alt="<?= htmlspecialchars($b['title']) ?>">
+                            <img src="asset/<?= htmlspecialchars($b['cover'] ?? '', ENT_QUOTES, 'UTF-8') ?>" width="80" height="120" alt="<?= htmlspecialchars($b['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                         </div>
-                        <div class="book-title"><?= htmlspecialchars($b['title']) ?></div>
-                        <div class="book-author"><?= htmlspecialchars($b['author']) ?></div>
-                        <div class="book-year"><?= htmlspecialchars($b['publish_year']) ?></div>
-                        <div class="book-category"><?= htmlspecialchars($b['category']) ?></div>
+                        <div class="book-title"><?= htmlspecialchars($b['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="book-author"><?= htmlspecialchars($b['author'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="book-year"><?= htmlspecialchars((string) ($b['publish_year'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="book-category"><?= htmlspecialchars($b['category'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
                     </div>
 
                     <!-- Tombol submit di DALAM form -->

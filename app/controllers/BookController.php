@@ -22,7 +22,7 @@ class BookController
     {
         $books = $this->bookModel->getAll();
 
-        require BASE_PATH . '/public/views/book_list.php';
+        require BASE_PATH . '/public/book_list.php';
         return;
     }
 
@@ -61,7 +61,7 @@ class BookController
             exit;
         }
 
-        require 'book_list.php';
+        require BASE_PATH . '/public/book_list.php';
     }
 
 

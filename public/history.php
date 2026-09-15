@@ -94,30 +94,30 @@ if (session_status() === PHP_SESSION_NONE) {
                     
                     <div class="riwayat-card">
                         <div class="book-image">
-                            <img src="<?= $row['final_cover'] ?>" alt="<?= htmlspecialchars($row['title']) ?>" style="object-fit:cover; width:100%; height:100%;" />
+                            <img src="<?= htmlspecialchars($row['final_cover'] ?? 'asset/background.png', ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($row['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>" style="object-fit:cover; width:100%; height:100%;" />
                         </div>
                         
                         <div class="book-info">
-                            <div class="status-badge <?= $row['status_class'] ?>"><?= $row['status_label'] ?></div>
+                            <div class="status-badge <?= htmlspecialchars($row['status_class'] ?? '', ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($row['status_label'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
                             
-                            <h3><?= htmlspecialchars($row['title']) ?></h3>
+                            <h3><?= htmlspecialchars($row['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h3>
 
                             <div class="detail">
                                 <span class="label">Pengarang</span>
                                 <span class="colon">:</span>
-                                <span class="value"><?= htmlspecialchars($row['author']) ?></span>
+                                <span class="value"><?= htmlspecialchars($row['author'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
                             </div>
 
                             <div class="detail">
                                 <span class="label">Tahun Terbit</span>
                                 <span class="colon">:</span>
-                                <span class="value"><?= htmlspecialchars($row['publish_year']) ?></span>
+                                <span class="value"><?= htmlspecialchars((string) ($row['publish_year'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span>
                             </div>
 
                             <div class="detail">
                                 <span class="label">Kategori</span>
                                 <span class="colon">:</span>
-                                <span class="value"><?= htmlspecialchars($row['category']) ?></span>
+                                <span class="value"><?= htmlspecialchars($row['category'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
                             </div>
 
                             <div class="detail">

@@ -110,7 +110,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <ul>
                 <li><a href="index.php">Beranda</a></li>
                 <?php if (isset($_SESSION['role'])): ?>
-                    <li><a href="history.php">Riwayat</a></li>
+                    <li><a href="index.php?controller=user&action=history">Riwayat</a></li>
                     <li><a href="profile.php">Profil</a></li>
                 <?php endif; ?>
             </ul>

@@ -283,6 +283,8 @@ class UserController
 
         // 3. PROSES DATA (Logika Tampilan dipindah ke sini)
         // Kita loop data mentah dan tambahkan data yang siap tampil
+        $publicPath = defined('BASE_PATH') ? BASE_PATH . '/public' : dirname(__DIR__, 2) . '/public';
+
         foreach ($historyData as $key => $row) {
             
             // --- A. LOGIKA STATUS ---
@@ -300,9 +302,10 @@ class UserController
             $folderAsset = 'asset/'; 
             $namaCover   = $row['cover'] ?? '';
             $pathCover   = $folderAsset . $namaCover;
+            $fileCover   = $publicPath . '/' . $pathCover;
 
-            // Cek fisik file (Relatif terhadap index.php)
-            if (!empty($namaCover) && file_exists($pathCover)) {
+            // Cek fisik file di folder public, karena runtime Vercel masuk lewat /api.
+            if (!empty($namaCover) && is_file($fileCover)) {
                 $historyData[$key]['final_cover'] = $pathCover;
             } else {
                 // Fallback ke default
@@ -310,7 +313,7 @@ class UserController
             }
         }
 
-        require 'history.php';
+        require $publicPath . '/history.php';
         exit;
     }
 }
