@@ -99,18 +99,20 @@ Pastikan environment lokal sudah memiliki:
 6. Isi konfigurasi database dan SMTP di `.env`.
 
    ```env
-   DB_HOST=localhost
-   DB_USER=root
+   DB_HOST=
+   DB_USER=
    DB_PASS=
-   DB_NAME=db_perpustakaan
-   DB_PORT=3306
+   DB_NAME=
+   DB_PORT=
 
-   MAIL_HOST=smtp.example.com
-   MAIL_USERNAME=username_smtp
-   MAIL_PASSWORD=password_smtp
-   MAIL_FROM=gmslibrary@gmail.com
-   MAIL_FROM_NAME="GMS Library Admin"
+   MAIL_HOST=
+   MAIL_USERNAME=
+   MAIL_PASSWORD=
+   MAIL_FROM=
+   MAIL_FROM_NAME=
    ```
+
+   Isi nilainya sesuai konfigurasi database dan SMTP lokal/server yang digunakan.
 
 ## Setup Database
 
