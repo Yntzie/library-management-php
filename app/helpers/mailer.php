@@ -8,10 +8,15 @@ use PHPMailer\PHPMailer\Exception;
 // Panggil Autoloader dari Composer (PENTING!)
 require_once __DIR__ . '../../../vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../..');
-$dotenv->load();
+if (file_exists(__DIR__ . '/../../.env')) {
+    Dotenv\Dotenv::createImmutable(__DIR__ . '/../..')->safeLoad();
+}
 
 class Mailer {
+
+    private static function env(string $key, ?string $default = null): ?string {
+        return $_ENV[$key] ?? getenv($key) ?: $default;
+    }
     
     public static function sendEmail($to, $subject, $message) {
         // Buat instance PHPMailer baru
@@ -23,11 +28,11 @@ class Mailer {
             // ===============================================
             // $mail->SMTPDebug = SMTP::DEBUG_SERVER; // Nyalakan ini kalau mau lihat log error detail
             $mail->isSMTP();
-            $mail->Host       = $_ENV['MAIL_HOST'];
+            $mail->Host       = self::env('MAIL_HOST', '');
             $mail->SMTPAuth   = true;
             
-            $mail->Username   = $_ENV['MAIL_USERNAME'];
-            $mail->Password   = $_ENV['MAIL_PASSWORD'];
+            $mail->Username   = self::env('MAIL_USERNAME', '');
+            $mail->Password   = self::env('MAIL_PASSWORD', '');
             
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
@@ -35,7 +40,7 @@ class Mailer {
             // ===============================================
             // 2. PENGIRIM & PENERIMA
             // ===============================================
-            $mail->setFrom($_ENV['MAIL_FROM'], $_ENV['MAIL_FROM_NAME']);
+            $mail->setFrom(self::env('MAIL_FROM', ''), self::env('MAIL_FROM_NAME', 'GMS Library Admin'));
             $mail->addAddress($to); // Email tujuan (User)
 
             // ===============================================
