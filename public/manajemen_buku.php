@@ -1,6 +1,8 @@
 <?php
 // Pastikan file init.php dimuat untuk akses ke konfigurasi dan Model
 require_once __DIR__ . "/../app/init.php";
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

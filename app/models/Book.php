@@ -1,10 +1,10 @@
 <?php
 class Book {
 
-    private mysqli $conn;
+    private PgConnection $conn;
     private string $table = "book";
 
-    public function __construct(mysqli $conn) {
+    public function __construct(PgConnection $conn) {
         $this->conn = $conn;
     }
 
@@ -43,7 +43,7 @@ class Book {
     //search by title, author, category
     public function search($keyword) {
         $sql = "SELECT * FROM book 
-            WHERE title LIKE ? OR author LIKE ? OR category LIKE ?";
+            WHERE title ILIKE ? OR author ILIKE ? OR category ILIKE ?";
         $key = "%$keyword%";
 
         $stmt = $this->conn->prepare($sql);
@@ -57,7 +57,7 @@ class Book {
             return [];
         }
 
-        return $result->fetch_all(MYSQLI_ASSOC);
+        return $result->fetch_all();
     }
 
 
@@ -97,7 +97,7 @@ class Book {
         if ($keyword) {
             $sql = "SELECT * FROM {$this->table}
                     WHERE status = 'TERSEDIA'
-                    AND (title LIKE ? OR author LIKE ? OR category LIKE ?)
+                    AND (title ILIKE ? OR author ILIKE ? OR category ILIKE ?)
                     ORDER BY book_id DESC";
             $key = "%$keyword%";
 

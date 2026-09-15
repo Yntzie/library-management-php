@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . "/../app/init.php";
 
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -23,7 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Cek apakah username sudah ada
         $librarian = new Librarian($conn);
-        $existing = $conn->query("SELECT librarian_id FROM librarian WHERE librarian_username = '$admin_username'");
+        $stmt = $conn->prepare("SELECT librarian_id FROM librarian WHERE librarian_username = ?");
+        $stmt->bind_param("s", $admin_username);
+        $stmt->execute();
+        $existing = $stmt->get_result();
         
         if ($existing->num_rows > 0) {
             $message = "❌ Username '$admin_username' sudah terdaftar!";

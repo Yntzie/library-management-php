@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . "/../app/init.php";
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
 
 // Cek session
 if (session_status() === PHP_SESSION_NONE) {

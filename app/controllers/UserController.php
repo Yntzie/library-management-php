@@ -2,10 +2,10 @@
 
 class UserController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private User $userModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn = $conn;
         $this->userModel = new User($this->conn);
@@ -113,7 +113,7 @@ class UserController
         }
 
         $_SESSION['user_id']   = $user['user_id'];
-        $_SESSION['user_name'] = $user['user_name'];
+        $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
         $_SESSION['username']  = $user['username'];
 
         // redirect ke halaman home / dashboard

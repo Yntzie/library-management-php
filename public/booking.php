@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . "/../app/init.php";
 
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
+
 // Pastikan user login
 if (!isset($_SESSION['role'])) {
     header("Location: index.php?controller=auth&action=login");

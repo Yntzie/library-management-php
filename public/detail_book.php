@@ -1,23 +1,18 @@
 <?php
+
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
 // detail_book.php
 // File ini HANYA mengembalikan fragmen HTML untuk isi Modal, bukan halaman utuh.
 
-// 1. Koneksi Database (Sesuaikan dengan konfigurasi Anda)
-// include 'koneksi.php'; 
-// Contoh simulasi koneksi jika belum di-include:
-$host = 'localhost'; $user = 'root'; $pass = ''; $db = 'perpustakaan';
-$conn = new mysqli($host, $user, $pass, $db);
-
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
+require_once __DIR__ . "/../app/init.php";
 
 // 2. Ambil ID dan Validasi Keamanan
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
     // PENTING: Gunakan Prepared Statement untuk mencegah SQL Injection
-    $stmt = $conn->prepare("SELECT * FROM books WHERE book_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM book WHERE book_id = ?");
     $stmt->bind_param("i", $id); // "i" artinya integer
     $stmt->execute();
     $result = $stmt->get_result();
@@ -27,7 +22,7 @@ if (isset($_GET['id'])) {
         // Data ditemukan, siapkan variabel
         $judul = htmlspecialchars($book['title']);
         $penulis = htmlspecialchars($book['author']);
-        $tahun = htmlspecialchars($book['year'] ?? '-'); // Fallback jika null
+        $tahun = htmlspecialchars($book['publish_year'] ?? '-'); // Fallback jika null
         $sinopsis = nl2br(htmlspecialchars($book['synopsis'] ?? 'Belum ada sinopsis.'));
         $cover = "asset/" . htmlspecialchars($book['cover']);
         

@@ -5,11 +5,11 @@ require_once __DIR__ . '/../helpers/mailer.php';
 
 class AuthController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private User $userModel;
     private Librarian $librarianModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn           = $conn;
         $this->userModel      = new User($this->conn);

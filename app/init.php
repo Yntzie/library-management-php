@@ -5,6 +5,9 @@ define("BASE_PATH", dirname(__DIR__));
 
 // Auto-load database
 require_once BASE_PATH . "/app/config/database.php";
+require_once BASE_PATH . "/app/config/migrations.php";
+
+runMigrations($conn);
 
 // Auto-load helpers jika ada
 $helperFiles = glob(BASE_PATH . "/app/helpers/*.php");

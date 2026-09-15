@@ -2,10 +2,10 @@
 
 class User {
 
-    private mysqli $conn;
+    private PgConnection $conn;
     private string $table = "user";
 
-    public function __construct(mysqli $conn) {
+    public function __construct(PgConnection $conn) {
         $this->conn = $conn;
     }
 
@@ -76,7 +76,7 @@ class User {
                 FROM {$this->table}
                 ORDER BY user_id DESC";
 
-        return $this->conn->query($sql)->fetch_all(MYSQLI_ASSOC);
+        return $this->conn->query($sql)->fetch_all();
     }
 
     // ====================================================
@@ -164,7 +164,7 @@ class User {
         
         if ($stmt->execute()) {
             $result = $stmt->get_result();
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $result->fetch_all();
         } else {
             return []; // Return array kosong jika gagal
         }

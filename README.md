@@ -1,6 +1,6 @@
 # GMS Library
 
-GMS Library adalah aplikasi perpustakaan berbasis PHP native untuk mengelola katalog buku, peminjaman, pengembalian, profil anggota, dan dashboard admin. Aplikasi ini memakai MySQL sebagai database, Composer untuk dependency, PHPMailer untuk email aktivasi, dan dotenv untuk konfigurasi aplikasi.
+GMS Library adalah aplikasi perpustakaan berbasis PHP native untuk mengelola katalog buku, peminjaman, pengembalian, profil anggota, dan dashboard admin. Aplikasi ini memakai PostgreSQL sebagai database, Composer untuk dependency, PHPMailer untuk email aktivasi, dan dotenv untuk konfigurasi aplikasi.
 
 ## Fitur Utama
 
@@ -18,7 +18,7 @@ GMS Library adalah aplikasi perpustakaan berbasis PHP native untuk mengelola kat
 ## Teknologi
 
 - PHP native
-- MySQL atau MariaDB
+- PostgreSQL
 - Composer
 - PHPMailer
 - vlucas/phpdotenv
@@ -52,7 +52,8 @@ TubesPWD/
 Pastikan environment lokal sudah memiliki:
 
 - PHP 8.0 atau lebih baru
-- MySQL/MariaDB
+- PostgreSQL
+- Ekstensi PHP `pdo_pgsql`
 - Composer
 - Web server lokal seperti XAMPP, Laragon, atau PHP built-in server
 
@@ -78,10 +79,10 @@ Pastikan environment lokal sudah memiliki:
    composer install
    ```
 
-4. Buat database MySQL bernama `db_perpustakaan`.
+4. Buat database PostgreSQL untuk aplikasi.
 
    ```sql
-   CREATE DATABASE db_perpustakaan;
+   CREATE DATABASE nama_database;
    ```
 
 5. Salin file environment.
@@ -116,11 +117,23 @@ Pastikan environment lokal sudah memiliki:
 
 ## Setup Database
 
-Jika file dump database belum tersedia, gunakan schema minimal berikut sebagai dasar.
+Saat aplikasi dijalankan, migration otomatis akan membuat tabel `schema_migrations` dan tabel utama aplikasi jika belum ada. Migration dipanggil dari `app/init.php`, sehingga cukup pastikan database PostgreSQL sudah dibuat dan konfigurasi `.env` sudah benar.
+
+Migration utama membuat tabel berikut:
+
+- `schema_migrations`
+- `"user"`
+- `librarian`
+- `book`
+- `"borrow"`
+- `return_book`
+- `fine`
+
+Schema PostgreSQL yang dibuat migration:
 
 ```sql
-CREATE TABLE user (
-  user_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE "user" (
+  user_id SERIAL PRIMARY KEY,
   full_name VARCHAR(100) NOT NULL,
   username VARCHAR(50) NOT NULL UNIQUE,
   user_email VARCHAR(100) NOT NULL UNIQUE,
@@ -129,12 +142,12 @@ CREATE TABLE user (
   user_address TEXT,
   user_photo VARCHAR(255) DEFAULT 'default.jpg',
   activation_token VARCHAR(255),
-  user_status ENUM('active', 'inactive') DEFAULT 'inactive',
-  registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
+  user_status VARCHAR(20) DEFAULT 'inactive' CHECK (user_status IN ('active', 'inactive')),
+  registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE librarian (
-  librarian_id INT AUTO_INCREMENT PRIMARY KEY,
+  librarian_id SERIAL PRIMARY KEY,
   librarian_name VARCHAR(100) NOT NULL,
   librarian_username VARCHAR(50) NOT NULL UNIQUE,
   librarian_password VARCHAR(255) NOT NULL,
@@ -142,40 +155,40 @@ CREATE TABLE librarian (
   librarian_phone VARCHAR(20),
   librarian_address TEXT,
   librarian_status VARCHAR(20) DEFAULT 'ACTIVE',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE book (
-  book_id INT AUTO_INCREMENT PRIMARY KEY,
+  book_id SERIAL PRIMARY KEY,
   title VARCHAR(150) NOT NULL,
   author VARCHAR(100) NOT NULL,
   publish_year INT NOT NULL,
   category VARCHAR(100) NOT NULL,
   cover VARCHAR(255),
-  status ENUM('TERSEDIA', 'DIPINJAM') DEFAULT 'TERSEDIA'
+  status VARCHAR(20) DEFAULT 'TERSEDIA' CHECK (status IN ('TERSEDIA', 'DIPINJAM'))
 );
 
-CREATE TABLE borrow (
-  borrow_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE "borrow" (
+  borrow_id SERIAL PRIMARY KEY,
   user_id INT NOT NULL,
   book_id INT NOT NULL,
   librarian_id INT NOT NULL,
   borrow_date DATE NOT NULL,
   due_date DATE NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES user(user_id),
+  FOREIGN KEY (user_id) REFERENCES "user"(user_id),
   FOREIGN KEY (book_id) REFERENCES book(book_id),
   FOREIGN KEY (librarian_id) REFERENCES librarian(librarian_id)
 );
 
 CREATE TABLE return_book (
-  return_id INT AUTO_INCREMENT PRIMARY KEY,
+  return_id SERIAL PRIMARY KEY,
   borrow_id INT NOT NULL,
-  return_date DATETIME NOT NULL,
-  FOREIGN KEY (borrow_id) REFERENCES borrow(borrow_id)
+  return_date TIMESTAMP NOT NULL,
+  FOREIGN KEY (borrow_id) REFERENCES "borrow"(borrow_id)
 );
 
 CREATE TABLE fine (
-  fine_id INT AUTO_INCREMENT PRIMARY KEY,
+  fine_id SERIAL PRIMARY KEY,
   return_id INT NOT NULL,
   late_days INT NOT NULL DEFAULT 0,
   total_amount INT NOT NULL DEFAULT 0,
@@ -183,7 +196,7 @@ CREATE TABLE fine (
 );
 ```
 
-Catatan: beberapa kode lama masih menyebut `user_name`, sedangkan alur registrasi utama memakai `full_name`. Jika query tertentu error karena kolom `user_name`, sesuaikan query tersebut ke `full_name` atau tambahkan kolom alias sesuai kebutuhan database lokal.
+Catatan: tabel user ditulis sebagai `"user"` karena `user` adalah nama khusus di PostgreSQL.
 
 ## Menjalankan Aplikasi
 
@@ -204,7 +217,7 @@ http://localhost:8000
 ### Opsi 2: XAMPP
 
 1. Letakkan folder proyek di `htdocs`.
-2. Jalankan Apache dan MySQL dari XAMPP Control Panel.
+2. Jalankan Apache dan PostgreSQL.
 3. Buka:
 
    ```text
@@ -264,7 +277,7 @@ Pastikan folder tersebut dapat ditulis oleh web server. Jika folder belum ada, b
 
 ### Database connection error
 
-Periksa `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_PORT` di `.env`, lalu pastikan service MySQL berjalan.
+Periksa `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_PORT` di `.env`, lalu pastikan service PostgreSQL berjalan dan ekstensi PHP `pdo_pgsql` aktif.
 
 ### Email aktivasi tidak terkirim
 

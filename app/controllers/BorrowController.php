@@ -2,10 +2,10 @@
 
 class BorrowController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private Borrow $borrowModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn        = $conn;
         $this->borrowModel = new Borrow($this->conn);

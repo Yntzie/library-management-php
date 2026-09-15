@@ -2,10 +2,10 @@
 
 class ReturnBook {
 
-    private mysqli $conn;
+    private PgConnection $conn;
     private string $table = "return_book";
 
-    public function __construct(mysqli $conn) {
+    public function __construct(PgConnection $conn) {
         $this->conn = $conn;
     }
 
@@ -53,7 +53,7 @@ class ReturnBook {
     public function getAll() {
         $sql = "SELECT * FROM {$this->table} ORDER BY return_id DESC";
         $result = $this->conn->query($sql);
-        return $result->fetch_all(MYSQLI_ASSOC);
+        return $result->fetch_all();
     }
 
     // BY ID

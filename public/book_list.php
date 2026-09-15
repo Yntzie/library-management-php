@@ -1,4 +1,7 @@
 <?php
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
+
 // Pastikan session dimulai jika belum, untuk menangani Navbar (Login/Logout state)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

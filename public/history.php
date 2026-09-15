@@ -1,4 +1,6 @@
 <?php
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
 // Mulai session (jika belum) agar navbar bisa baca $_SESSION
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

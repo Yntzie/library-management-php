@@ -2,10 +2,10 @@
 
 class Librarian
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private string $table = "librarian";
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn = $conn;
     }
@@ -86,7 +86,7 @@ class Librarian
                 FROM {$this->table}
                 ORDER BY librarian_id DESC";
 
-        return $this->conn->query($sql)->fetch_all(MYSQLI_ASSOC);
+        return $this->conn->query($sql)->fetch_all();
     }
 
     // ====================================================

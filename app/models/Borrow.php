@@ -1,10 +1,10 @@
 <?php
 
 class Borrow {
-    private mysqli $conn;
+    private PgConnection $conn;
     private string $table = "borrow";
 
-    public function __construct(mysqli $conn) {
+    public function __construct(PgConnection $conn) {
         $this->conn = $conn;
     }
 
@@ -47,7 +47,7 @@ class Borrow {
     }
 
     public function getAll() {
-        $sql = "SELECT b.borrow_id, u.user_name, bk.title, l.librarian_name, 
+        $sql = "SELECT b.borrow_id, u.full_name AS user_name, bk.title, l.librarian_name, 
                        b.borrow_date, b.due_date
                 FROM {$this->table} b
                 JOIN user u ON b.user_id = u.user_id

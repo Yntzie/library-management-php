@@ -2,10 +2,10 @@
 
 class ReturnBookController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private ReturnBook $returnModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn = $conn;
         $this->returnModel = new ReturnBook($this->conn);

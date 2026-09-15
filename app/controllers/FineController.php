@@ -3,10 +3,10 @@
 
 class FineController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private Fine $fineModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn = $conn;
         $this->fineModel = new Fine($this->conn);
@@ -82,7 +82,15 @@ class FineController
     // ==================================
     public function create(): void
     {
-        
+        $input = $_POST;
+        if (empty($input)) {
+            $raw  = file_get_contents("php://input");
+            $json = json_decode($raw, true);
+            if (is_array($json)) {
+                $input = $json;
+            }
+        }
+
         $return_id    = $input['return_id']    ?? null;
         $late_days    = $input['late_days']    ?? null;
         $total_amount = $input['total_amount'] ?? null;

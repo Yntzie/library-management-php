@@ -2,10 +2,10 @@
 
 class Fine {
 
-    private mysqli $conn;
+    private PgConnection $conn;
     private string $table = "fine";
 
-    public function __construct(mysqli $conn) {
+    public function __construct(PgConnection $conn) {
         $this->conn = $conn;
     }
 
@@ -25,7 +25,7 @@ class Fine {
         $sql = "SELECT * FROM {$this->table} ORDER BY fine_id DESC";
         $result = $this->conn->query($sql);
 
-        return $result->fetch_all(MYSQLI_ASSOC);
+        return $result->fetch_all();
     }
 
     // GET FINE BY ID

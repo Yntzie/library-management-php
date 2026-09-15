@@ -2,10 +2,10 @@
 
 class BookController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private Book $bookModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn = $conn;
         $this->bookModel = new Book($this->conn);
@@ -268,10 +268,9 @@ class BookController
             throw new Exception("Gagal menghapus data.");
         }
 
-    } catch (mysqli_sql_exception $e) {
-        // 2. TANGKAP ERROR FOREIGN KEY (Code 1451)
-        // Error ini muncul karena buku ada di tabel 'borrow'
-        if ($e->getCode() == 1451) {
+    } catch (PDOException $e) {
+        // 2. TANGKAP ERROR FOREIGN KEY PostgreSQL (SQLSTATE 23503)
+        if ($e->getCode() === '23503') {
             http_response_code(409); // Konflik data
             echo json_encode([
                 "status"  => "error",

@@ -1,4 +1,6 @@
 <?php
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
 // 1. Cek status session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

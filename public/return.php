@@ -2,10 +2,10 @@
 
 class FineController
 {
-    private mysqli $conn;
+    private PgConnection $conn;
     private Fine $fineModel;
 
-    public function __construct(mysqli $conn)
+    public function __construct(PgConnection $conn)
     {
         $this->conn = $conn;
         $this->fineModel = new Fine($this->conn);

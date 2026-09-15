@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once __DIR__ . "/../app/init.php";
+// Make the database connection explicit for the controllers.
+$conn = $GLOBALS['conn'] ?? null;
 
 // 1. Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
