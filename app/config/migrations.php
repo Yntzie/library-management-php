@@ -104,7 +104,7 @@ function runMigrations(PgConnection $conn): void
         'Administrator',
         CASE
           WHEN EXISTS (SELECT 1 FROM librarian WHERE librarian_username = 'admin')
-          THEN 'admin_1'
+          THEN 'admin_' || FLOOR(EXTRACT(EPOCH FROM NOW()))::TEXT
           ELSE 'admin'
         END,
         '\$2y\$12\$rP3go8Fool.uSflcsSep9uAfXnS6M7d27XtZopgVmJgEund3FYday',

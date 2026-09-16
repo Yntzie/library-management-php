@@ -69,7 +69,7 @@ $user = $userModel->getById($_SESSION['user_id']);
     <!-- Pesan -->
     <?php if (!empty($_SESSION['success'])): ?>
         <script>
-            alert("<?= addslashes($_SESSION['success']); ?>");
+            alert(<?= json_encode($_SESSION['success']); ?>);
             // setelah OK di popup, redirect ke beranda
             window.location.href = "index.php";
         </script>
@@ -78,7 +78,7 @@ $user = $userModel->getById($_SESSION['user_id']);
 
     <?php if (!empty($_SESSION['error'])): ?>
         <script>
-            alert("<?= addslashes($_SESSION['error']); ?>");
+            alert(<?= json_encode($_SESSION['error']); ?>);
             // kalau error cukup stay di halaman booking
         </script>
         <?php unset($_SESSION['error']); ?>
@@ -100,19 +100,19 @@ $user = $userModel->getById($_SESSION['user_id']);
         <div class="form-group">
             <label for="nama">Nama Peminjam</label>
             <input type="text" id="full_name" 
-                value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" readonly>
+                value="<?= htmlspecialchars($user['full_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
         </div>
 
         <div class="form-group">
             <label for="alamat">Alamat</label>
             <input type="text" id="user_address" 
-                value="<?= htmlspecialchars($user['user_address'] ?? '') ?>" readonly>
+                value="<?= htmlspecialchars($user['user_address'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
         </div>
 
         <div class="form-group">
             <label for="telepon">No Telepon</label>
             <input type="text" id="user_phone" 
-                value="<?= htmlspecialchars($user['user_phone'] ?? '') ?>" readonly>
+                value="<?= htmlspecialchars($user['user_phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
         </div>
 
         <div class="form-group">

@@ -103,7 +103,7 @@ elseif (isset($_SESSION['alert_success'])) {
                     <?php if (!empty($msgContent)): ?>
                         <div class="alert-box <?= $msgType ?> fade-in-message">
                             <span><?= $msgType === 'error' ? '⚠️' : '✅'; ?></span>
-                            <span><?= htmlspecialchars($msgContent) ?></span>
+                            <span><?= htmlspecialchars($msgContent, ENT_QUOTES, 'UTF-8') ?></span>
                         </div>
                     <?php endif; ?>
                     <button type="submit" class="btn-login" style="margin-top: 10px;">Masuk</button>

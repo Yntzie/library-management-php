@@ -28,7 +28,7 @@ class AuthController
 
         // Jika bukan POST, tampilkan form login
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            require_once 'login.php';
+            require_once BASE_PATH . '/public/login.php';
             return;
         }
 
@@ -47,7 +47,7 @@ class AuthController
             $_SESSION['librarian_username'] = $lib['librarian_username'] ?? $username;
             $_SESSION['librarian_role']     = $lib['librarian_role'] ?? 'STAFF';
 
-            $foto = $user['user_photo'] ?? ''; 
+            $foto = '';
 
             if (!empty($foto) && $foto != 'default.jpg') {
                 // Simpan path gambar ke session

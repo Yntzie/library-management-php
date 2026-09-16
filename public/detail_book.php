@@ -20,11 +20,11 @@ if (isset($_GET['id'])) {
 
     if ($book) {
         // Data ditemukan, siapkan variabel
-        $judul = htmlspecialchars($book['title']);
-        $penulis = htmlspecialchars($book['author']);
-        $tahun = htmlspecialchars($book['publish_year'] ?? '-'); // Fallback jika null
-        $sinopsis = nl2br(htmlspecialchars($book['synopsis'] ?? 'Belum ada sinopsis.'));
-        $cover = "asset/" . htmlspecialchars($book['cover']);
+        $judul = htmlspecialchars($book['title'] ?? '', ENT_QUOTES, 'UTF-8');
+        $penulis = htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8');
+        $tahun = htmlspecialchars((string) ($book['publish_year'] ?? '-'), ENT_QUOTES, 'UTF-8'); // Fallback jika null
+        $sinopsis = nl2br(htmlspecialchars($book['synopsis'] ?? 'Belum ada sinopsis.', ENT_QUOTES, 'UTF-8'));
+        $cover = "asset/" . htmlspecialchars($book['cover'] ?? 'background.png', ENT_QUOTES, 'UTF-8');
         
         // Output HTML yang akan disuntikkan ke dalam Modal
         ?>

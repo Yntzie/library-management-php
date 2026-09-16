@@ -16,7 +16,14 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'librarian' && $_SESSION
 
 // 2. Ambil data user terbaru dari database
 $adminModel = new Librarian($conn);
-$librarian = $adminModel->getById($_SESSION['librarian_id']);
+$librarianId = (int) ($_SESSION['librarian_id'] ?? 0);
+$librarian = $librarianId ? $adminModel->getById($librarianId) : null;
+
+if (!$librarian) {
+    $_SESSION['alert_error'] = "Data admin tidak ditemukan.";
+    header("Location: index.php?controller=auth&action=logout");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -137,7 +144,7 @@ $librarian = $adminModel->getById($_SESSION['librarian_id']);
 
             <div class="user-action">
                 <div class="icon-circle">
-                    <a href="profile.php">
+                    <a href="profile_admin.php">
                         <?php if (isset($_SESSION['profile_photo']) && !empty($_SESSION['profile_photo'])) : ?>
                             <img src="<?= $_SESSION['profile_photo'] ?>" alt="Profile" class="header-profile-img">
                         <?php else : ?>
@@ -156,13 +163,14 @@ $librarian = $adminModel->getById($_SESSION['librarian_id']);
                 <div class="avatar-placeholder">
         
                 <?php 
-                    $photoName = $librarian['user_photo'] ?? 'default.jpg';
-                    $photoPath = 'uploads/' . $photoName;
+                    $photoName = $_SESSION['profile_photo'] ?? '';
+                    $photoPath = $photoName;
+                    $photoFile = __DIR__ . '/' . $photoPath;
 
                     // 2. Cek apakah ada datanya, filenya ada di folder, dan bukan default
-                    if (!empty($photoName) && file_exists($photoPath) && $photoName != 'default.jpg') : 
+                    if (!empty($photoName) && is_file($photoFile) && $photoName != 'default.jpg') :
                 ?>
-                    <img src="<?= $photoPath ?>" alt="Foto Profil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <img src="<?= htmlspecialchars($photoPath, ENT_QUOTES, 'UTF-8') ?>" alt="Foto Profil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                 
                 <?php else: ?>
                     
@@ -183,25 +191,25 @@ $librarian = $adminModel->getById($_SESSION['librarian_id']);
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="full_name" 
-                        value="<?= htmlspecialchars($librarian['librarian_username'] ?? '') ?>" readonly>
+                        value="<?= htmlspecialchars($librarian['librarian_username'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
                 </div>
 
                 <div class="form-group">
                     <label for="user_address">Alamat</label>
                     <input type="text" id="user_address" 
-                        value="<?= htmlspecialchars($librarian['librarian_address'] ?? '') ?>" readonly>
+                        value="<?= htmlspecialchars($librarian['librarian_address'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
                 </div>
 
                 <div class="form-group">
                     <label for="user_phone">No. Telepon</label>
                     <input type="text" id="user_phone" 
-                        value="<?= htmlspecialchars($librarian['librarian_phone'] ?? '') ?>" readonly>
+                        value="<?= htmlspecialchars($librarian['librarian_phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
                 </div>
             </form>
 
             <?php if (isset($_SESSION['update_success'])): ?>
                 <script>
-                    alert("<?= $_SESSION['update_success']; ?>");
+                    alert(<?= json_encode($_SESSION['update_success']); ?>);
                 </script>
                 <?php unset($_SESSION['update_success']); ?>
             <?php endif; ?>

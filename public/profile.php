@@ -163,11 +163,12 @@ $user = $userModel->getById($_SESSION['user_id']);
                     // 1. Tentukan path gambar
                     $photoName = $user['user_photo'] ?? 'default.jpg';
                     $photoPath = 'uploads/' . $photoName;
+                    $photoFile = __DIR__ . '/' . $photoPath;
 
                     // 2. Cek apakah ada datanya, filenya ada di folder, dan bukan default
-                    if (!empty($photoName) && file_exists($photoPath) && $photoName != 'default.jpg') : 
+                    if (!empty($photoName) && is_file($photoFile) && $photoName != 'default.jpg') :
                 ?>
-                    <img src="<?= $photoPath ?>" alt="Foto Profil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <img src="<?= htmlspecialchars($photoPath, ENT_QUOTES, 'UTF-8') ?>" alt="Foto Profil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                 
                 <?php else: ?>
                     
@@ -190,25 +191,25 @@ $user = $userModel->getById($_SESSION['user_id']);
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="full_name" 
-                        value="<?= htmlspecialchars($user['username'] ?? '') ?>" readonly>
+                        value="<?= htmlspecialchars($user['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
                 </div>
 
                 <div class="form-group">
                     <label for="user_address">Alamat</label>
                     <input type="text" id="user_address" 
-                        value="<?= htmlspecialchars($user['user_address'] ?? '') ?>" readonly>
+                        value="<?= htmlspecialchars($user['user_address'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
                 </div>
 
                 <div class="form-group">
                     <label for="user_phone">No. Telepon</label>
                     <input type="text" id="user_phone" 
-                        value="<?= htmlspecialchars($user['user_phone'] ?? '') ?>" readonly>
+                        value="<?= htmlspecialchars($user['user_phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly>
                 </div>
             </form>
 
             <?php if (isset($_SESSION['update_success'])): ?>
                 <script>
-                    alert("<?= $_SESSION['update_success']; ?>");
+                    alert(<?= json_encode($_SESSION['update_success']); ?>);
                 </script>
                 <?php unset($_SESSION['update_success']); ?>
             <?php endif; ?>

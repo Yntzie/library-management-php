@@ -119,7 +119,7 @@ if (isset($_SESSION['alert_success'])) {
         <div class="popup-overlay" id="successPopup">
             <div class="popup-content">
                 <span class="popup-icon">&#10004;</span> <h3>Berhasil!</h3>
-                <p><?= htmlspecialchars($successMessage); ?></p>
+                <p><?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>
         </div>
 
@@ -194,7 +194,7 @@ if (isset($_SESSION['alert_success'])) {
 
     <?php if (isset($_SESSION['search_error'])) : ?>
         <script>
-            alert("<?= $_SESSION['search_error']; ?>");
+            alert(<?= json_encode($_SESSION['search_error']); ?>);
         </script>
         <?php unset($_SESSION['search_error']); ?>
     <?php endif; ?>

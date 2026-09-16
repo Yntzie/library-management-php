@@ -50,7 +50,7 @@ class BookController
 
     public function search()
     {
-        $keyword = $_GET['keyword'] ?? '';
+        $keyword = trim((string) ($_GET['keyword'] ?? ''));
 
         $books = $this->bookModel->search($keyword);
 
@@ -62,6 +62,11 @@ class BookController
         }
 
         require BASE_PATH . '/public/book_list.php';
+    }
+
+    private function coverUploadDir(): string
+    {
+        return BASE_PATH . '/public/uploads/';
     }
 
 
@@ -91,12 +96,28 @@ class BookController
             return;
         }
 
-        $uploadDir = 'uploads/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $fileExtension = strtolower(pathinfo($coverFile['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($fileExtension, $allowedTypes, true)) {
+            http_response_code(400);
+            echo json_encode(["status" => "error", "message" => "Format file tidak valid. Gunakan JPG, PNG, GIF, atau WEBP."]);
+            return;
         }
 
-        $fileExtension = pathinfo($coverFile['name'], PATHINFO_EXTENSION);
+        $uploadDir = $this->coverUploadDir();
+        if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0755, true)) {
+            http_response_code(500);
+            echo json_encode(["status" => "error", "message" => "Folder upload tidak bisa dibuat."]);
+            return;
+        }
+
+        if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+            http_response_code(500);
+            echo json_encode(["status" => "error", "message" => "Folder upload tidak bisa ditulis."]);
+            return;
+        }
+
         $newFileName = 'cover_' . time() . '.' . $fileExtension;
         $destination = $uploadDir . $newFileName;
 
@@ -122,7 +143,7 @@ class BookController
             ]);
         } else {
             // Hapus file jika db gagal insert
-            if (file_exists($destination)) {
+            if (is_file($destination)) {
                 unlink($destination);
             }
 
@@ -166,25 +187,37 @@ class BookController
         // Cek apakah ada file baru yang diupload tanpa error
         if (isset($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
 
-            $uploadDir = 'uploads/'; // Pastikan folder ini sama dengan saat create
+            $uploadDir = $this->coverUploadDir();
             $fileTmp = $_FILES['cover']['tmp_name'];
             $fileName = $_FILES['cover']['name'];
 
             // Validasi Ekstensi
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-            if (!in_array($fileExt, $allowedTypes)) {
+            if (!in_array($fileExt, $allowedTypes, true)) {
                 http_response_code(400);
                 echo json_encode([
                     "status" => "error",
-                    "message" => "Format file tidak valid. Gunakan JPG, PNG, atau GIF."
+                    "message" => "Format file tidak valid. Gunakan JPG, PNG, GIF, atau WEBP."
                 ]);
                 return;
             }
 
+            if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0755, true)) {
+                http_response_code(500);
+                echo json_encode(["status" => "error", "message" => "Folder upload tidak bisa dibuat."]);
+                return;
+            }
+
+            if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+                http_response_code(500);
+                echo json_encode(["status" => "error", "message" => "Folder upload tidak bisa ditulis."]);
+                return;
+            }
+
             // Generate nama unik baru
-            $newCoverName = uniqid() . '-' . basename($fileName);
+            $newCoverName = uniqid('cover_', true) . '.' . $fileExt;
             $targetPath = $uploadDir . $newCoverName;
 
             // Pindahkan file baru
@@ -193,7 +226,7 @@ class BookController
 
                 // (Opsional) Hapus file cover lama jika ada, biar server tidak penuh
                 $oldCoverPath = $uploadDir . $book['cover'];
-                if (!empty($book['cover']) && file_exists($oldCoverPath)) {
+                if (!empty($book['cover']) && is_file($oldCoverPath)) {
                     unlink($oldCoverPath);
                 }
 
@@ -241,60 +274,70 @@ class BookController
     // GET /books/delete?id=1
     // ================================
     public function delete(int $book_id): void
-{
-    // 1. Set Header JSON
-    header('Content-Type: application/json');
+    {
+        // 1. Set Header JSON
+        header('Content-Type: application/json');
 
-    try {
-        // Coba langsung hapus
-        // Jika ID buku ada di tabel borrow (baik sedang dipinjam atau riwayat),
-        // Baris ini akan Error dan langsung loncat ke blok 'catch'
-        $deleted = $this->bookModel->delete($book_id);
+        try {
+            $book = $this->bookModel->getById($book_id);
 
-        if ($deleted) {
-            // Hapus gambar fisik jika perlu (opsional)
-            $cek = $this->bookModel->getById($book_id);
-            if ($cek && !empty($cek['cover'])) {
-                $path = 'uploads/' . $cek['cover'];
-                if (file_exists($path)) unlink($path);
+            if (!$book) {
+                http_response_code(404);
+                echo json_encode([
+                    "status"  => "error",
+                    "message" => "Buku tidak ditemukan."
+                ]);
+                return;
             }
 
-            echo json_encode([
-                "status"  => "success",
-                "message" => "Buku berhasil dihapus permanen."
-            ]);
-        } else {
-            // Gagal tanpa exception (jarang terjadi di delete)
-            throw new Exception("Gagal menghapus data.");
-        }
+            // Coba langsung hapus
+            // Jika ID buku ada di tabel borrow (baik sedang dipinjam atau riwayat),
+            // Baris ini akan Error dan langsung loncat ke blok 'catch'
+            $deleted = $this->bookModel->delete($book_id);
 
-    } catch (PDOException $e) {
-        // 2. TANGKAP ERROR FOREIGN KEY PostgreSQL (SQLSTATE 23503)
-        if ($e->getCode() === '23503') {
-            http_response_code(409); // Konflik data
-            echo json_encode([
-                "status"  => "error",
-                "message" => "Gagal: Buku tidak bisa dihapus karena memiliki riwayat peminjaman (tercatat di database)."
-            ]);
-        } else {
-            // Error database lainnya
+            if ($deleted) {
+                // Hapus gambar fisik jika perlu (opsional)
+                if (!empty($book['cover'])) {
+                    $path = $this->coverUploadDir() . $book['cover'];
+                    if (is_file($path)) unlink($path);
+                }
+
+                echo json_encode([
+                    "status"  => "success",
+                    "message" => "Buku berhasil dihapus permanen."
+                ]);
+            } else {
+                // Gagal tanpa exception (jarang terjadi di delete)
+                throw new Exception("Gagal menghapus data.");
+            }
+
+        } catch (PDOException $e) {
+            // 2. TANGKAP ERROR FOREIGN KEY PostgreSQL (SQLSTATE 23503)
+            if ($e->getCode() === '23503') {
+                http_response_code(409); // Konflik data
+                echo json_encode([
+                    "status"  => "error",
+                    "message" => "Gagal: Buku tidak bisa dihapus karena memiliki riwayat peminjaman (tercatat di database)."
+                ]);
+            } else {
+                // Error database lainnya
+                http_response_code(500);
+                echo json_encode([
+                    "status"  => "error",
+                    "message" => "Database Error: " . $e->getMessage()
+                ]);
+            }
+        } catch (Exception $e) {
+            // Error umum
             http_response_code(500);
             echo json_encode([
                 "status"  => "error",
-                "message" => "Database Error: " . $e->getMessage()
+                "message" => $e->getMessage()
             ]);
         }
-    } catch (Exception $e) {
-        // Error umum
-        http_response_code(500);
-        echo json_encode([
-            "status"  => "error",
-            "message" => $e->getMessage()
-        ]);
-    }
 
-    // 3. PENTING: HAPUS/JANGAN GUNAKAN header("Location: ...")
-    // Biarkan JavaScript yang menangani reload jika sukses.
-    exit; 
-}
+        // 3. PENTING: HAPUS/JANGAN GUNAKAN header("Location: ...")
+        // Biarkan JavaScript yang menangani reload jika sukses.
+        exit;
+    }
 }

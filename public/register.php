@@ -32,14 +32,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <?php if (isset($_SESSION['error_message'])) : ?>
                 <script>
-                    alert("<?= $_SESSION['error_message']; ?>");
+                    alert(<?= json_encode($_SESSION['error_message']); ?>);
                 </script>
                 <?php unset($_SESSION['error_message']); ?>
             <?php endif; ?>
 
 
             <?php if (isset($_SESSION['alert_success'])) : ?>
-                <script>alert("<?= $_SESSION['alert_success']; ?>");</script>
+                <script>alert(<?= json_encode($_SESSION['alert_success']); ?>);</script>
                 <?php unset($_SESSION['alert_success']); ?>
             <?php endif; ?>
 

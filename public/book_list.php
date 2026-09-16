@@ -148,14 +148,14 @@ if (session_status() === PHP_SESSION_NONE) {
                     <div class="book-card" onclick="loadDetail('<?= $b['book_id'] ?>')">
 
                         <img
-                            src="asset/<?= htmlspecialchars($b['cover']) ?>"
-                            alt="<?= htmlspecialchars($b['title']) ?>"
+                            src="asset/<?= htmlspecialchars($b['cover'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                            alt="<?= htmlspecialchars($b['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                             onerror="this.onerror=null; this.src='asset/background.png';">
 
                         <div class="book-info">
-                            <h3><?= htmlspecialchars($b['title']) ?></h3>
+                            <h3><?= htmlspecialchars($b['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h3>
                             <!-- Perhatikan: sesuaikan nama kolom lain jika perlu -->
-                            <p class="book-author"><?= htmlspecialchars($b['author']) ?></p>
+                            <p class="book-author"><?= htmlspecialchars($b['author'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
                             <!-- Jika ingin menampilkan tahun, gunakan $b['publish_year'] -->
                         </div>
 

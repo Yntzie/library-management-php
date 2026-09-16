@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $admin_password = $_POST['admin_password'] ?? '';
     $admin_phone = trim($_POST['admin_phone'] ?? '');
     $admin_address = trim($_POST['admin_address'] ?? '');
+    $safe_username = htmlspecialchars($admin_username, ENT_QUOTES, 'UTF-8');
+    $safe_password = htmlspecialchars($admin_password, ENT_QUOTES, 'UTF-8');
 
     // Validasi input
     if (empty($admin_name) || empty($admin_username) || empty($admin_password) || empty($admin_phone) || empty($admin_address)) {
@@ -32,18 +34,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existing = $stmt->get_result();
         
         if ($existing->num_rows > 0) {
-            $message = "❌ Username '$admin_username' sudah terdaftar!";
+            $message = "❌ Username '$safe_username' sudah terdaftar!";
             $status = 'error';
         } else {
             // Buat admin baru
             if ($librarian->register($admin_name, $admin_username, $admin_password, 'ADMIN', $admin_phone, $admin_address)) {
                 $message = "✅ Admin berhasil dibuat!<br>
-                           Username: <strong>$admin_username</strong><br>
-                           Password: <strong>$admin_password</strong><br>
+                           Username: <strong>$safe_username</strong><br>
+                           Password: <strong>$safe_password</strong><br>
                            <br>⚠️ <strong>PENTING:</strong> Hapalkan password ini dan hapus file create_admin.php untuk keamanan!";
                 $status = 'success';
             } else {
-                $message = '❌ Gagal membuat admin. Error: ' . $conn->error;
+                $message = '❌ Gagal membuat admin. Error: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8');
                 $status = 'error';
             }
         }

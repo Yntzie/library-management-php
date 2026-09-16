@@ -224,7 +224,7 @@ if (isset($_SESSION['alert_success'])) {
         <div class="popup-overlay" id="successPopup">
             <div class="popup-content">
                 <span class="popup-icon">✔</span> <h3>Berhasil!</h3>
-                <p><?= htmlspecialchars($successMessage); ?></p>
+                <p><?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>
         </div>
 

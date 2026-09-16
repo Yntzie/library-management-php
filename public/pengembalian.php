@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $book_id = (int) ($_POST['book_id'] ?? 0);
     $fine_amount = (int) ($_POST['fine_amount'] ?? 0);
     $late_days = (int) ($_POST['late_days'] ?? 0);
-    $member_id = isset($_POST['member_id']) ? htmlspecialchars($_POST['member_id']) : '';
+    $member_id = trim((string) ($_POST['member_id'] ?? ''));
 
     if ($borrow_id > 0) {
         $returnBookModel = new ReturnBook($conn);
@@ -116,7 +116,7 @@ function get_active_loans_by_user_id($user_id)
 }
 
 
-$user_id_to_search = isset($_GET['member_id']) ? htmlspecialchars($_GET['member_id']) : '';
+$user_id_to_search = trim((string) ($_GET['member_id'] ?? ''));
 $filtered_loans = [];
 $total_fine = 0;
 $member_name = '';
@@ -362,32 +362,32 @@ unset($_SESSION['alert_success'], $_SESSION['alert_error']);
 
         <?php if ($successMessage): ?>
             <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                <?= htmlspecialchars($successMessage) ?></div>
+                <?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8') ?></div>
         <?php endif; ?>
         <?php if ($errorMessage): ?>
             <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                <?= htmlspecialchars($errorMessage) ?></div>
+                <?= htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') ?></div>
         <?php endif; ?>
 
         <div class="search-container">
             <h2 style="margin-top: 0;">Cari Pinjaman Aktif</h2>
             <form class="search-form" action="pengembalian.php" method="GET">
                 <input type="text" name="member_id" placeholder="Masukkan ID Anggota (Contoh: 1)"
-                    value="<?= $user_id_to_search ?>" required>
+                    value="<?= htmlspecialchars($user_id_to_search, ENT_QUOTES, 'UTF-8') ?>" required>
                 <button type="submit" class="btn-search">Cari Pinjaman</button>
             </form>
         </div>
 
         <?php if ($user_id_to_search && empty($filtered_loans)): ?>
             <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                Tidak ada pinjaman aktif yang ditemukan untuk ID Anggota: **<?= $user_id_to_search ?>**.
+                Tidak ada pinjaman aktif yang ditemukan untuk ID Anggota: <strong><?= htmlspecialchars($user_id_to_search, ENT_QUOTES, 'UTF-8') ?></strong>.
             </div>
         <?php endif; ?>
 
         <?php if (!empty($filtered_loans)): ?>
 
             <h2 style="margin-top: 30px;">
-                Daftar Buku Dipinjam oleh <?= htmlspecialchars($member_name) ?> (ID: <?= $user_id_to_search ?>)
+                Daftar Buku Dipinjam oleh <?= htmlspecialchars($member_name, ENT_QUOTES, 'UTF-8') ?> (ID: <?= htmlspecialchars($user_id_to_search, ENT_QUOTES, 'UTF-8') ?>)
             </h2>
 
             <!-- Summary Box untuk Total Denda -->
@@ -413,27 +413,27 @@ unset($_SESSION['alert_success'], $_SESSION['alert_error']);
                     <tbody>
                         <?php foreach ($filtered_loans as $loan): ?>
                             <tr>
-                                <td><?= htmlspecialchars($loan['borrow_id']) ?></td>
-                                <td><?= htmlspecialchars($loan['book_title']) ?></td>
-                                <td><?= htmlspecialchars($loan['borrow_date']) ?></td>
-                                <td><?= htmlspecialchars($loan['due_date']) ?></td>
+                                <td><?= htmlspecialchars((string) ($loan['borrow_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($loan['book_title'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($loan['borrow_date'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($loan['due_date'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><span
-                                        class="status-badge <?= strtolower(str_replace(' ', '-', $loan['status_text'])) ?>"><?= htmlspecialchars($loan['status_text']) ?></span>
+                                        class="status-badge <?= htmlspecialchars(strtolower(str_replace(' ', '-', $loan['status_text'] ?? '')), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($loan['status_text'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
                                 </td>
-                                <td><?= htmlspecialchars($loan['days_late']) ?></td>
-                                <td><?= format_rupiah($loan['fine_amount']) ?></td>
+                                <td><?= htmlspecialchars((string) ($loan['days_late'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= format_rupiah($loan['fine_amount'] ?? 0) ?></td>
                                 <td>
                                     <!-- Form untuk memproses pengembalian -->
                                     <form action="pengembalian.php" method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="process_return">
-                                        <input type="hidden" name="borrow_id" value="<?= $loan['borrow_id'] ?>">
+                                        <input type="hidden" name="borrow_id" value="<?= htmlspecialchars((string) ($loan['borrow_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="book_id"
-                                            value="<?= isset($loan['book_id']) ? $loan['book_id'] : '' ?>">
-                                        <input type="hidden" name="member_id" value="<?= $user_id_to_search ?>">
-                                        <input type="hidden" name="fine_amount" value="<?= $loan['fine_amount'] ?>">
-                                        <input type="hidden" name="late_days" value="<?= $loan['days_late'] ?>">
+                                            value="<?= htmlspecialchars((string) ($loan['book_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="member_id" value="<?= htmlspecialchars($user_id_to_search, ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="fine_amount" value="<?= htmlspecialchars((string) ($loan['fine_amount'] ?? 0), ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="late_days" value="<?= htmlspecialchars((string) ($loan['days_late'] ?? 0), ENT_QUOTES, 'UTF-8') ?>">
                                         <button type="submit" class="action-btn return"
-                                            onclick="return confirm('Konfirmasi pengembalian buku: <?= htmlspecialchars($loan['book_title']) ?>? Denda: <?= format_rupiah($loan['fine_amount']) ?>')">
+                                            onclick="return confirm(<?= htmlspecialchars(json_encode('Konfirmasi pengembalian buku: ' . ($loan['book_title'] ?? '') . '? Denda: ' . format_rupiah($loan['fine_amount'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>)">
                                             Kembalikan
                                         </button>
                                     </form>

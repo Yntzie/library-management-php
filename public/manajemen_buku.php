@@ -318,10 +318,10 @@ if (isset($_SESSION['alert_error'])) {
         <p>Kelola semua koleksi buku perpustakaan di sini.</p>
 
         <?php if ($successMessage): ?>
-            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;"><?= htmlspecialchars($successMessage) ?></div>
+            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;"><?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8') ?></div>
         <?php endif; ?>
         <?php if ($errorMessage): ?>
-            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;"><?= htmlspecialchars($errorMessage) ?></div>
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;"><?= htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') ?></div>
         <?php endif; ?>
 
         <div class="header-actions">
@@ -389,19 +389,19 @@ if (isset($_SESSION['alert_error'])) {
                     <?php if (!empty($books)): ?>
                         <?php foreach ($books as $book): ?>
                             <tr>
-                                <td><?= htmlspecialchars($book['book_id']) ?></td>
-                                <td><?= htmlspecialchars($book['title']) ?></td>
-                                <td><?= htmlspecialchars($book['author']) ?></td>
-                                <td><?= htmlspecialchars($book['publish_year']) ?></td>
-                                <td><?= htmlspecialchars($book['category']) ?></td>
-                                <td><?= htmlspecialchars($book['status']) ?></td>
+                                <td><?= htmlspecialchars((string) ($book['book_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($book['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars((string) ($book['publish_year'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($book['category'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($book['status'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                 <td>
                                     <button type="button" class="action-btn edit btn-edit-trigger"
                                         data-id="<?= $book['book_id'] ?>"
-                                        data-title="<?= htmlspecialchars($book['title']) ?>"
-                                        data-author="<?= htmlspecialchars($book['author']) ?>"
-                                        data-year="<?= htmlspecialchars($book['publish_year']) ?>"
-                                        data-category="<?= htmlspecialchars($book['category']) ?>">Edit</button>
+                                        data-title="<?= htmlspecialchars($book['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        data-author="<?= htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        data-year="<?= htmlspecialchars((string) ($book['publish_year'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                        data-category="<?= htmlspecialchars($book['category'] ?? '', ENT_QUOTES, 'UTF-8') ?>">Edit</button>
 
                                     <form action="indexAdmin.php?controller=book&action=delete&id=<?= $book['book_id'] ?>"
                                         method="POST" style="display:inline;"

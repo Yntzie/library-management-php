@@ -16,9 +16,8 @@ class UserController
     // ====================================================
     public function index()
     {
-        $users = $this->userModel->getAll();
-        // tampilin di tabel
-        include "../views/user/index.php";
+        header("Location: indexAdmin.php");
+        exit;
     }
 
     // ====================================================
@@ -26,7 +25,7 @@ class UserController
     // ====================================================
     public function showRegisterForm()
     {
-        include "../views/user/register.php";
+        require BASE_PATH . '/public/register.php';
     }
 
     // ====================================================
@@ -102,7 +101,7 @@ class UserController
             return;
         }
 
-        if ($user['user_status'] !== 'ACTIVE') {
+        if (($user['user_status'] ?? '') !== 'active') {
             echo "<script>alert('Akun belum aktif. Silakan aktivasi terlebih dahulu.'); history.back();</script>";
             return;
         }
@@ -171,30 +170,49 @@ class UserController
         $user_id = $_SESSION['user_id'];
         $oldData = $this->userModel->getById($user_id);
 
+        if (!$oldData) {
+            $_SESSION['update_error'] = "Data user tidak ditemukan.";
+            header("Location: profile.php");
+            exit;
+        }
+
         // 1. LOGIC PASSWORD
         $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : $oldData['password'];
 
         // 2. LOGIC UPLOAD FOTO (Sesuaikan dengan kolom user_photo)
         $photoName = $oldData['user_photo']; // Default pakai yang lama
+        $uploadDir = BASE_PATH . '/public/uploads/';
 
         // Cek apakah ada file yang diupload di input bernama 'user_photo'
         if (isset($_FILES['user_photo']) && $_FILES['user_photo']['error'] === 0) {
-            $targetDir = "uploads/"; // Pastikan folder ini ada
             $fileType  = strtolower(pathinfo($_FILES["user_photo"]["name"], PATHINFO_EXTENSION));
-            $allowed   = ['jpg', 'jpeg', 'png', 'gif'];
+            $allowed   = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
-            if (in_array($fileType, $allowed)) {
+            if (in_array($fileType, $allowed, true)) {
+                if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0755, true)) {
+                    $_SESSION['update_error'] = "Folder upload tidak bisa dibuat.";
+                    header("Location: profile.php"); exit;
+                }
+
+                if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+                    $_SESSION['update_error'] = "Folder upload tidak bisa ditulis.";
+                    header("Location: profile.php"); exit;
+                }
+
                 // Nama file unik: IDUser_Timestamp.jpg
                 $newFileName = $user_id . '_' . time() . '.' . $fileType;
                 
-                if (move_uploaded_file($_FILES["user_photo"]["tmp_name"], $targetDir . $newFileName)) {
+                if (move_uploaded_file($_FILES["user_photo"]["tmp_name"], $uploadDir . $newFileName)) {
                     $photoName = $newFileName; // Update nama file
                     
                     // Update session agar foto di navbar langsung berubah
                     $_SESSION['profile_photo'] = 'uploads/' . $newFileName;
+                } else {
+                    $_SESSION['update_error'] = "Gagal mengupload foto profil.";
+                    header("Location: profile.php"); exit;
                 }
             } else {
-                $_SESSION['update_error'] = "Format file tidak didukung (hanya JPG, PNG, GIF).";
+                $_SESSION['update_error'] = "Format file tidak didukung (hanya JPG, PNG, GIF, WEBP).";
                 header("Location: profile.php"); exit;
             }
         }

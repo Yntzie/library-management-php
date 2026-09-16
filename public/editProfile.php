@@ -75,11 +75,12 @@ $user = $userModel->getById($_SESSION['user_id']);
                     <?php 
                         // Cek apakah user punya foto dan filenya ada di folder uploads
                         $photoPath = 'uploads/' . ($user['user_photo'] ?? 'default.jpg');
+                        $photoFile = __DIR__ . '/' . $photoPath;
                         
                         // Jika file tidak ditemukan di folder uploads, tampilkan icon default atau gambar default
-                        if (!empty($user['user_photo']) && file_exists($photoPath) && $user['user_photo'] != 'default.jpg') : 
+                        if (!empty($user['user_photo']) && is_file($photoFile) && $user['user_photo'] != 'default.jpg') :
                     ?>
-                        <img src="<?= $photoPath ?>" alt="Profile" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                        <img src="<?= htmlspecialchars($photoPath, ENT_QUOTES, 'UTF-8') ?>" alt="Profile" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                     <?php else: ?>
                         <span style="font-size: 40px;">👤</span>
                     <?php endif; ?>
@@ -95,7 +96,7 @@ $user = $userModel->getById($_SESSION['user_id']);
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" 
-                        value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
+                        value="<?= htmlspecialchars($user['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
                 </div>
 
                 <div class="form-group">
@@ -106,13 +107,13 @@ $user = $userModel->getById($_SESSION['user_id']);
                 <div class="form-group">
                     <label for="user_address">Alamat</label>
                     <input type="text" id="user_address" name="user_address" 
-                           value="<?= htmlspecialchars($user['user_address'] ?? '') ?>" required>
+                           value="<?= htmlspecialchars($user['user_address'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="user_phone">No. Telepon</label>
                     <input type="text" id="user_phone" name="user_phone" 
-                           value="<?= htmlspecialchars($user['user_phone'] ?? '') ?>" required>
+                           value="<?= htmlspecialchars($user['user_phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
                 </div>
 
                 <div class="button-row">
@@ -124,7 +125,7 @@ $user = $userModel->getById($_SESSION['user_id']);
 
             <?php if (isset($_SESSION['update_error'])) : ?>
                 <script>
-                    alert("<?= $_SESSION['update_error']; ?>");
+                    alert(<?= json_encode($_SESSION['update_error']); ?>);
                 </script>
                 <?php unset($_SESSION['update_error']); ?>
             <?php endif; ?>
